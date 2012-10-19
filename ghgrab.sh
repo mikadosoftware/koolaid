@@ -42,5 +42,7 @@ git add  $f_png
 git commit -m "Adding img $filename.png"
 git push origin master
 
+rm $IMGDIR/*.xwd
+
 echo "paste this into ghi comment"
 echo "\\![filename]($GHURL$filename.png)"
