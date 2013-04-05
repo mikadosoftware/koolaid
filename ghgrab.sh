@@ -15,7 +15,7 @@ fi
 
 GHURL="https://raw.github.com/lifeisstillgood/githubkoolaid/master/screenshots/"
 
-IMGDIR=/home/pbrian/src/githubkoolaid/screenshots
+IMGDIR="."
 
 f_xwd=$IMGDIR/$filename.xwd
 f_png=$IMGDIR/$filename.png
