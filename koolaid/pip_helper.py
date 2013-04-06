@@ -128,7 +128,17 @@ def parse_pip_line(l):
 
     
 def discover_dependancies(pkgname):
-    """
+    """Given a pkgname, investigate and tell
+    provides: the pkgname will install these as dependancies
+    srcpkg: this is the pkgname(s) that the above report as providing them
+
+    (this second part explains how one pkgname can return >1 srcpkg - the
+    dependancy pkgs are provided more than once by diff packages. pip does ginal this but I am not parsing it yet.
+    (from Flask>=0.3->Flask-OpenID)
+
+    .. todo::
+       I think we need to consider a tree strucutre.
+
     """
     lprovide = []
     lsrcpkg = []
