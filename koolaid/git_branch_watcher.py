@@ -32,10 +32,99 @@ Partly to speed up repetitive git commands, partly to make a specific taks a abi
 If git has plumbing and porcelain, this is at best the little yellow cube
 in the urinal - it just makes it smell less.
 
+
+Quick usage ::
+
+
+1. git clone a repo into temp location
+2. visit this files location
+
+::
+
+   >>> import git_branch_watcher
+ 
+   >>> git_branch_watcher.get_all_branches_in_repo("/usr/home/pbrian/deploy/demo1/src/rhaptos2.repo")
+   # This will vist the repo, and rather brutally, ensure each branch on remote
+   # has a local mirror (makes the whole comparison feasible locally)
+
+   >>> git_branch_watcher.prep_cmds("/usr/home/pbrian/deploy/demo1/src/rhaptos2.repo")
+   # This will output a list of cmds that call *this* file with the
+   # arguments of every branch in the above repo
+   # ence we shall fill up a dir called "res" in this dir, with output
+   # files listing what is / is not in Left and Right files
+   
+   
+   >>> git_branch_watcher.dumb_method_of_checking_results("res")
+   #this will output a cmpare of the results directory
+
 """
 import subprocess
 import sys
 import os
+
+def get_all_branches_in_repo(repo):
+    """
+    list all known, remote and local
+    brnaches, munging into one local set, fully checked out and ready
+    
+    """
+    cmd = "cd %s && git branch -a" 
+    output = subprocess.check_output(cmd % repo, shell=True)
+    allbranches = []
+    for line in output.split("\n"):
+        if line.strip() == "remotes/origin/HEAD -> origin/master": continue
+        ll = line.strip().replace("*","")
+        ll = ll.strip().replace("remotes/origin/","")
+        ll = ll.strip()
+        allbranches.append(ll)
+
+    for br in set(allbranches):
+        print "cd %s && git checkout %s && git pull origin %s && git checkout master" % (repo, br, br)
+        
+def prep_cmds(repo):
+    """
+    """
+    cmd = "cd %s && git branch -a" 
+    output = subprocess.check_output(cmd % repo, shell=True)
+    allbranches = []
+    for line in output.split("\n"):
+        if line.strip() == "remotes/origin/HEAD -> origin/master": continue
+        ll = line.strip().replace("*","")
+        ll = ll.strip().replace("remotes/origin/","")
+        ll = ll.strip()
+        allbranches.append(ll)
+
+    fo = open("br.sh", "w")    
+    for br in set(allbranches):
+        s = "python git_branch_watcher.py %s master %s > res/%s.res\n\n"
+        fo.write(s % (repo, br, br))
+    fo.close()
+
+def dumb_method_of_checking_results(resdir):
+    """
+    look in resdir, check if last 
+    """
+    notinmaster = []
+    inmaster = []
+    files = [f for f in os.listdir(resdir) if f.find(".res")!=-1]
+    for f in files:
+        output = []
+        flag = False
+        for line in open(os.path.join(resdir, f)):
+            if line.find("not in master") != -1:
+                flag = True
+            if flag:
+                output.append(line)
+        if len(output)>2:
+            #we did find commits not in master
+            notinmaster.append(f)
+        else:
+            inmaster.append(f)
+            
+    print "not in master", notinmaster
+    print "*********"
+    print "in master - deletable", inmaster
+    
 
 def acquire_rawlog_of_branch(repo, branch):
     """
