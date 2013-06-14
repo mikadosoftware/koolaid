@@ -1,3 +1,5 @@
+:desc: managing a git repo - tools and tricks
+
 ============================
 Useful Github related tricks
 ============================
